@@ -8,6 +8,35 @@ import {
   findEventById
 } from "./utils/filter-events";
 
+interface FormData {
+  title: string;
+  category: string;
+  date: string;
+  time: string;
+  location: string;
+  capacity: string;
+  description: string;
+}
+
+interface FormErrors {
+  title?: string;
+  category?: string;
+  date?: string;
+  time?: string;
+  location?: string;
+  capacity?: string;
+}
+
+const emptyForm: FormData = {
+  title: "",
+  category: "",
+  date: "",
+  time: "",
+  location: "",
+  capacity: "",
+  description: ""
+};
+
 type PageName = "home" | "events" | "detail" | "add" | "update";
 
 function formatDate(dateStr: string): string {
@@ -44,14 +73,77 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchText, setSearchText] = useState("");
   const [category, setCategory] = useState<Category | "">("");
+  const [formData, setFormData] = useState<FormData>(emptyForm);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [successData, setSuccessData] = useState<object | null>(null);
 
   function go(next: PageName, id: string | null = null) {
     setPage(next);
     setSelectedId(id);
+    setFormErrors({});
+    setSuccessData(null);
     window.scrollTo(0, 0);
   }
 
   const selected = selectedId ? findEventById(events, selectedId) : undefined;
+
+  // Güncelleme sayfasına geçince formu mevcut verilerle doldur
+  useEffect(() => {
+    if (page === "update" && selected) {
+      setFormData({
+        title: selected.title,
+        category: selected.category,
+        date: selected.date,
+        time: selected.time,
+        location: selected.location,
+        capacity: String(selected.capacity),
+        description: selected.description
+      });
+    } else if (page === "add") {
+      setFormData(emptyForm);
+    }
+    setFormErrors({});
+    setSuccessData(null);
+  }, [page, selectedId]);
+
+  function handleFieldChange(field: keyof FormData, value: string) {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormErrors((prev) => ({ ...prev, [field]: undefined }));
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const errors: FormErrors = {};
+    if (formData.title.trim().length < 3)
+      errors.title = "Etkinlik adı en az 3 karakter olmalıdır.";
+    if (!formData.category)
+      errors.category = "Lütfen bir kategori seçiniz.";
+    if (!formData.date.trim())
+      errors.date = "Tarih alanı boş bırakılamaz.";
+    if (!formData.time.trim())
+      errors.time = "Saat alanı boş bırakılamaz.";
+    if (!formData.location.trim())
+      errors.location = "Yer alanı boş bırakılamaz.";
+    if (formData.capacity !== "") {
+      const cap = Number(formData.capacity);
+      if (isNaN(cap) || cap < 1 || cap > 1000)
+        errors.capacity = "Kontenjan 1 ile 1000 arasında olmalıdır.";
+    }
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) { setSuccessData(null); return; }
+
+    const result: Record<string, unknown> = {
+      title: formData.title.trim(),
+      category: formData.category,
+      date: formData.date.trim(),
+      time: formData.time.trim(),
+      location: formData.location.trim(),
+      description: formData.description.trim()
+    };
+    if (formData.capacity !== "") result.capacity = Number(formData.capacity);
+    if (page === "update" && selectedId) result.id = selectedId;
+    setSuccessData(result);
+  }
 
   // Başlık belirleme (H1 ve Document Title)
   let headerTitle = "Kampüs Etkinlikleri";
@@ -298,117 +390,149 @@ export default function App() {
 
         {/* === ADIM 13: EKLE VE GÜNCELLE SAYFALARI === */}
         {(page === "add" || page === "update") && (
-          <form
-            id="etkinlik-formu"
-            className="form"
-            noValidate
-            onSubmit={(e) => e.preventDefault()}
-          >
-            <label htmlFor="title">
-              Etkinlik adı *
-              <input
-                id="title"
-                name="title"
-                maxLength={80}
-                placeholder="Örn: Kariyer Günleri"
-                defaultValue={
-                  page === "update" && selected ? selected.title : ""
-                }
-              />
-              <span className="alan-hata" id="ad-hata"></span>
-            </label>
+          <>
+            <form
+              id="etkinlik-formu"
+              className="form"
+              noValidate
+              onSubmit={handleSubmit}
+            >
+              <label htmlFor="title">
+                Etkinlik adı *
+                <input
+                  id="title"
+                  name="title"
+                  maxLength={80}
+                  placeholder="Örn: Kariyer Günleri"
+                  value={formData.title}
+                  aria-invalid={formErrors.title ? "true" : undefined}
+                  onChange={(e) => handleFieldChange("title", e.target.value)}
+                />
+                <span className="alan-hata" id="ad-hata">
+                  {formErrors.title}
+                </span>
+              </label>
 
-            <label htmlFor="kategori">
-              Kategori *
-              <select
-                id="kategori"
-                name="kategori"
-                defaultValue={
-                  page === "update" && selected ? selected.category : ""
-                }
-              >
-                <option value="" disabled>
-                  Seçiniz &boxv;
-                </option>
-                <option value="Seminer">Seminer</option>
-                <option value="Atölye">Atölye</option>
-                <option value="Söyleşi">Söyleşi</option>
-                <option value="Yarışma">Yarışma</option>
-              </select>
-              <span className="alan-hata" id="kategori-hata"></span>
-            </label>
+              <label htmlFor="kategori">
+                Kategori *
+                <select
+                  id="kategori"
+                  name="kategori"
+                  value={formData.category}
+                  aria-invalid={formErrors.category ? "true" : undefined}
+                  onChange={(e) => handleFieldChange("category", e.target.value)}
+                >
+                  <option value="" disabled>
+                    Seçiniz &boxv;
+                  </option>
+                  <option value="Seminer">Seminer</option>
+                  <option value="Atölye">Atölye</option>
+                  <option value="Söyleşi">Söyleşi</option>
+                  <option value="Yarışma">Yarışma</option>
+                </select>
+                <span className="alan-hata" id="kategori-hata">
+                  {formErrors.category}
+                </span>
+              </label>
 
-            <label htmlFor="tarih">
-              Tarih (GG-AA-YYYY) *
-              <input
-                id="tarih"
-                name="tarih"
-                placeholder="Örn: 15-11-2026"
-                defaultValue={
-                  page === "update" && selected ? selected.date : ""
-                }
-              />
-              <span className="alan-hata" id="tarih-hata"></span>
-            </label>
+              <label htmlFor="tarih">
+                Tarih (GG-AA-YYYY) *
+                <input
+                  id="tarih"
+                  name="tarih"
+                  placeholder="Örn: 15-11-2026"
+                  value={formData.date}
+                  aria-invalid={formErrors.date ? "true" : undefined}
+                  onChange={(e) => handleFieldChange("date", e.target.value)}
+                />
+                <span className="alan-hata" id="tarih-hata">
+                  {formErrors.date}
+                </span>
+              </label>
 
-            <label htmlFor="saat">
-              Saat (SS:DD) *
-              <input
-                id="saat"
-                name="saat"
-                placeholder="Örn: 14:00"
-                defaultValue={
-                  page === "update" && selected ? selected.time : ""
-                }
-              />
-              <span className="alan-hata" id="saat-hata"></span>
-            </label>
+              <label htmlFor="saat">
+                Saat (SS:DD) *
+                <input
+                  id="saat"
+                  name="saat"
+                  placeholder="Örn: 14:00"
+                  value={formData.time}
+                  aria-invalid={formErrors.time ? "true" : undefined}
+                  onChange={(e) => handleFieldChange("time", e.target.value)}
+                />
+                <span className="alan-hata" id="saat-hata">
+                  {formErrors.time}
+                </span>
+              </label>
 
-            <label htmlFor="yer">
-              Yer *
-              <input
-                id="yer"
-                name="yer"
-                placeholder="Örn: A Blok Konferans Salonu"
-                defaultValue={
-                  page === "update" && selected ? selected.location : ""
-                }
-              />
-              <span className="alan-hata" id="yer-hata"></span>
-            </label>
+              <label htmlFor="yer">
+                Yer *
+                <input
+                  id="yer"
+                  name="yer"
+                  placeholder="Örn: A Blok Konferans Salonu"
+                  value={formData.location}
+                  aria-invalid={formErrors.location ? "true" : undefined}
+                  onChange={(e) => handleFieldChange("location", e.target.value)}
+                />
+                <span className="alan-hata" id="yer-hata">
+                  {formErrors.location}
+                </span>
+              </label>
 
-            <label htmlFor="kontenjan">
-              Kontenjan (1 - 1000)
-              <input
-                type="number"
-                id="kontenjan"
-                name="kontenjan"
-                placeholder="Örn: 100"
-                defaultValue={
-                  page === "update" && selected ? selected.capacity : ""
-                }
-              />
-              <span className="alan-hata" id="kontenjan-hata"></span>
-            </label>
+              <label htmlFor="kontenjan">
+                Kontenjan (1 - 1000)
+                <input
+                  type="number"
+                  id="kontenjan"
+                  name="kontenjan"
+                  placeholder="Örn: 100"
+                  value={formData.capacity}
+                  aria-invalid={formErrors.capacity ? "true" : undefined}
+                  onChange={(e) => handleFieldChange("capacity", e.target.value)}
+                />
+                <span className="alan-hata" id="kontenjan-hata">
+                  {formErrors.capacity}
+                </span>
+              </label>
 
-            <label htmlFor="description">
-              Açıklama
-              <textarea
-                id="description"
-                name="description"
-                rows={5}
-                placeholder="Etkinlik detayları..."
-                defaultValue={
-                  page === "update" && selected ? selected.description : ""
-                }
-              />
-              <span className="alan-hata" id="aciklama-hata"></span>
-            </label>
+              <label htmlFor="description">
+                Açıklama
+                <textarea
+                  id="description"
+                  name="description"
+                  rows={5}
+                  placeholder="Etkinlik detayları..."
+                  value={formData.description}
+                  onChange={(e) => handleFieldChange("description", e.target.value)}
+                />
+                <span className="alan-hata" id="aciklama-hata"></span>
+              </label>
 
-            <button type="submit" className="form-buton">
-              {page === "add" ? "Kaydet" : "Güncelle"}
-            </button>
-          </form>
+              <button type="submit" className="form-buton">
+                {page === "add" ? "Kaydet" : "Güncelle"}
+              </button>
+            </form>
+
+            {/* Hata özeti */}
+            {Object.keys(formErrors).length > 0 && !successData && (
+              <div className="hata-kutusu" style={{ marginTop: "1rem" }}>
+                <strong>Formda hatalı alanlar var!</strong> Lütfen yukarıdaki kırmızı uyarıları düzeltin.
+              </div>
+            )}
+
+            {/* Başarı kutusu */}
+            {successData && (
+              <div className="basari-kutusu" style={{ marginTop: "1rem" }}>
+                <strong>
+                  {page === "update"
+                    ? "Etkinlik başarıyla güncellendi!"
+                    : "Etkinlik başarıyla oluşturuldu!"}
+                </strong>
+                <pre>{JSON.stringify(successData, null, 2)}</pre>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>
