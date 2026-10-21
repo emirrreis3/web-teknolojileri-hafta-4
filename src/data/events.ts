@@ -20,7 +20,8 @@ export const events: CampusEvent[] = [
     time: "10:30",
     location: "Mühendislik Lab 3",
     description: "Arduino ve temel robotik bileşenlerle uygulamalı prototipleme.",
-    capacity: 30
+    capacity: 30,
+    image: "/afis-robotik.svg"
   },
   {
     id: "event-3",
@@ -30,7 +31,8 @@ export const events: CampusEvent[] = [
     time: "13:00",
     location: "B Blok Amfi 1",
     description: "Web güvenliği, sızma testleri ve güvenli kodlama pratikleri.",
-    capacity: 150
+    capacity: 150,
+    image: "/afis-siber.svg"
   },
   {
     id: "event-4",
@@ -40,7 +42,8 @@ export const events: CampusEvent[] = [
     time: "15:00",
     location: "Bilgisayar Lab 1",
     description: "Python ile veri analizi ve temel model eğitimi.",
-    capacity: 40
+    capacity: 40,
+    image: "/afis-yapay-zeka.svg"
   },
   {
     id: "event-5",
@@ -50,7 +53,8 @@ export const events: CampusEvent[] = [
     time: "16:00",
     location: "Kütüphane Seminer Odası",
     description: "Start-up kurma süreçleri ve yatırım alma deneyimleri.",
-    capacity: 60
+    capacity: 60,
+    image: "/afis-girisimcilik.svg"
   },
   {
     id: "event-6",
@@ -60,6 +64,7 @@ export const events: CampusEvent[] = [
     time: "09:00",
     location: "Merkez Fuaye Alanı",
     description: "24 saatlik açık kaynak kod maratonu ve proje sunumları.",
-    capacity: 80
+    capacity: 80,
+    image: "/afis-hackathon.svg"
   }
 ];
