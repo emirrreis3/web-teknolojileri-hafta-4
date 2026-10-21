@@ -76,7 +76,7 @@ export default function App() {
     <div className="uygulama-cercevesi">
       <div className="ust-alan">
         <Header title={currentInfo.title} text={currentInfo.text} />
-        <Navigation current={page} onNavigate={go} />
+        <Navigation current={page} onNavigate={go} detailLabel={page === "detail" && selected ? selected.title : undefined} />
       </div>
 
       <main>

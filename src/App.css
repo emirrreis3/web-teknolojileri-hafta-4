@@ -100,6 +100,15 @@ nav.nav-menu .ayrac {
   opacity: 0.9;
 }
 
+/* Detay sayfasında etkinlik adı */
+nav.nav-menu .nav-aktif {
+  background-color: #ffffff;
+  color: var(--renk-ana) !important;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
 /* Ana İçerik Alanı */
 main {
   padding: 0 var(--bosluk-m);

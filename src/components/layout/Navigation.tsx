@@ -3,6 +3,7 @@ import type { PageName } from "../../types/page";
 interface NavigationProps {
   current: PageName;
   onNavigate: (page: PageName) => void;
+  detailLabel?: string;
 }
 
 interface NavItem {
@@ -16,7 +17,7 @@ const navItems: NavItem[] = [
   { name: "add", label: "Ekle" }
 ];
 
-function Navigation({ current, onNavigate }: NavigationProps) {
+function Navigation({ current, onNavigate, detailLabel }: NavigationProps) {
   return (
     <nav className="nav-menu">
       {navItems.map((item, index) => {
@@ -30,7 +31,7 @@ function Navigation({ current, onNavigate }: NavigationProps) {
             {index > 0 && <span className="ayrac">&middot;</span>}
             <a
               href={`#${item.name}`}
-              aria-current={isCurrent ? "page" : undefined}
+              aria-current={isCurrent && !detailLabel ? "page" : undefined}
               onClick={(e) => {
                 e.preventDefault();
                 onNavigate(item.name);
@@ -41,6 +42,12 @@ function Navigation({ current, onNavigate }: NavigationProps) {
           </span>
         );
       })}
+      {current === "detail" && detailLabel && (
+        <>
+          <span className="ayrac">&middot;</span>
+          <span className="nav-aktif">{detailLabel}</span>
+        </>
+      )}
     </nav>
   );
 }
