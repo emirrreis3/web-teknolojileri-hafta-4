@@ -39,16 +39,29 @@ body {
 }
 
 /* === HEADER VE MENÜ === */
-header {
+.ust-alan {
   background-color: var(--renk-ana);
   padding: var(--bosluk-m);
   margin-bottom: var(--bosluk-m);
+}
+
+.ust-alan header,
+header.site-baslik {
+  background-color: transparent;
+  padding: 0;
+  margin-bottom: 0.5rem;
 }
 
 header h1 {
   margin: 0 0 0.4rem 0;
   font-size: 1.35rem;
   color: #ffffff !important;
+}
+
+header .aciklama {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 /* Menü */
@@ -191,11 +204,9 @@ a.sayfa-link {
 }
 
 .afis-kutusu {
-  background-color: #d1fae5;
+  margin: 0;
   text-align: center;
   border-radius: var(--kose);
-  color: #065f46;
-  font-size: 0.95rem;
   overflow: hidden;
 }
 
@@ -204,6 +215,14 @@ a.sayfa-link {
   height: auto;
   display: block;
   border-radius: var(--kose);
+}
+
+.afis-kutusu figcaption {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 0.35rem;
+  font-style: italic;
+  text-align: center;
 }
 
 dl.detay-bilgi {
@@ -332,12 +351,29 @@ button.form-buton {
     gap: 1rem;
   }
 
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+  section.grid-2,
+  .etkinlik-listesi.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+  section.grid-3,
+  .etkinlik-listesi.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
 
   .detay-konteyner {
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: start;
   }
+}
+
+/* === FOOTER === */
+footer {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 1.5rem;
+  padding: 1rem var(--bosluk-m) 0.5rem var(--bosluk-m);
+  border-top: 1px solid #e5e7eb;
+}
+
+footer p {
+  margin: 0;
 }
